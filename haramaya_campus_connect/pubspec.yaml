@@ -1,0 +1,90 @@
+name: haramaya_campus_connect
+description: Haramaya University Campus Connect - Discover events, join clubs, and stay connected.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Firebase
+  firebase_core: ^3.8.1
+  firebase_auth: ^5.4.1
+  cloud_firestore: ^5.6.1
+  firebase_storage: ^12.4.1
+  firebase_messaging: ^15.2.1
+  google_sign_in: ^6.2.2
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Routing
+  go_router: ^14.8.1
+
+  # UI Components
+  cached_network_image: ^3.4.1
+  flutter_svg: ^2.0.17
+  shimmer: ^3.0.0
+  flutter_staggered_animations: ^1.1.1
+  intl: ^0.19.0
+  timeago: ^3.7.0
+
+  # Image Handling
+  image_picker: ^1.1.2
+  image_cropper: ^8.0.2
+
+  # Local Storage
+  shared_preferences: ^2.3.4
+
+  # Utils
+  uuid: ^4.5.1
+  url_launcher: ^6.3.1
+  connectivity_plus: ^6.1.1
+  flutter_local_notifications: ^18.0.1
+  permission_handler: ^11.3.1
+
+  # Icons
+  cupertino_icons: ^1.0.8
+  flutter_animate: ^4.5.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  riverpod_generator: ^2.6.3
+  build_runner: ^2.4.14
+  json_serializable: ^6.9.3
+  json_annotation: ^4.9.0
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icons/app_icon.png"
+  adaptive_icon_background: "#1A237E"
+  adaptive_icon_foreground: "assets/icons/app_icon_foreground.png"
+  min_sdk_android: 21
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/fonts/
+
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+

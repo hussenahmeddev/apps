@@ -1,0 +1,36 @@
+# Flutter/Dart
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+*.ipr
+*.iws
+.idea/
+.vscode/
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Generated
+*.g.dart
+*.freezed.dart
+*.mocks.dart
+
+# Platform
+/android/app/debug
+/android/app/profile
+/android/app/release
+/ios/Pods/
+/ios/.symlinks/
+
+# Misc
+.DS_Store
+*.swp
+*.swo
+pubspec.lock
+

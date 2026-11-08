@@ -1,0 +1,158 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================================
+    // Helper Functions
+    // ============================================================
+
+    // Returns true if the request is from an authenticated user.
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Returns true if the authenticated user's UID matches the given userId.
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Returns the user's role from their Firestore document.
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    // Returns true if the user is an admin.
+    function isAdmin() {
+      return isAuthenticated() && getUserRole() == 'admin';
+    }
+
+    // Returns true if the user is a club organizer or admin.
+    function isOrganizer() {
+      return isAuthenticated() && (getUserRole() == 'club_organizer' || getUserRole() == 'admin');
+    }
+
+    // Returns true if the incoming data does NOT attempt to set/change the role field.
+    function doesNotChangeRole() {
+      return !('role' in request.resource.data) || 
+             request.resource.data.role == resource.data.role;
+    }
+
+    // Returns true if a field was not modified.
+    function fieldUnchanged(field) {
+      return !(field in request.resource.data) || 
+             request.resource.data[field] == resource.data[field];
+    }
+
+    // ============================================================
+    // Users Collection
+    // ============================================================
+    match /users/{userId} {
+      // Any authenticated user can read user profiles.
+      allow read: if isAuthenticated();
+
+      // Users can create their own profile document on sign-up.
+      // Role must always be 'student' on creation (no self-promotion).
+      allow create: if isOwner(userId) && 
+                       request.resource.data.role == 'student';
+
+      // Users can update their own profile, but CANNOT change their role.
+      // Only admins can change user roles.
+      allow update: if (isOwner(userId) && doesNotChangeRole()) ||
+                       isAdmin();
+
+      // Only admins can delete user documents.
+      allow delete: if isAdmin();
+    }
+
+    // ============================================================
+    // Events Collection
+    // ============================================================
+    match /events/{eventId} {
+      // Any authenticated user can read events.
+      allow read: if isAuthenticated();
+
+      // Only organizers and admins can create events.
+      allow create: if isOrganizer() &&
+                       request.resource.data.organizerId == request.auth.uid;
+
+      // Organizers can update their own events; admins can update any.
+      allow update: if (isOrganizer() && resource.data.organizerId == request.auth.uid) ||
+                       isAdmin();
+
+      // Organizers can delete their own events; admins can delete any.
+      allow delete: if (isOrganizer() && resource.data.organizerId == request.auth.uid) ||
+                       isAdmin();
+    }
+
+    // ============================================================
+    // Registrations Collection
+    // ============================================================
+    match /registrations/{registrationId} {
+      // Users can read their own registrations; organizers/admins can read all.
+      allow read: if isAuthenticated() && 
+                     (resource.data.userId == request.auth.uid || isOrganizer());
+
+      // Authenticated users can create registrations for themselves.
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid;
+
+      // Users can update their own registration (e.g., cancel).
+      // Organizers/admins can update any (e.g., mark attendance).
+      allow update: if (resource.data.userId == request.auth.uid) || isOrganizer();
+
+      // Only admins can delete registrations.
+      allow delete: if isAdmin();
+    }
+
+    // ============================================================
+    // Clubs Collection
+    // ============================================================
+    match /clubs/{clubId} {
+      // Any authenticated user can read clubs.
+      allow read: if isAuthenticated();
+
+      // Only organizers and admins can create clubs.
+      allow create: if isOrganizer() &&
+                       request.resource.data.organizerId == request.auth.uid;
+
+      // Club organizer can update their club; admins can update any.
+      allow update: if (isAuthenticated() && resource.data.organizerId == request.auth.uid) ||
+                       isAdmin();
+
+      // Only admins can delete clubs.
+      allow delete: if isAdmin();
+    }
+
+    // ============================================================
+    // Notifications Collection
+    // ============================================================
+    match /notifications/{notificationId} {
+      // Users can read their own notifications.
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+
+      // System/Cloud Functions create notifications. Admins can create too.
+      allow create: if isAdmin();
+
+      // Users can update their own notifications (mark as read).
+      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid &&
+                       fieldUnchanged('title') && fieldUnchanged('body') && fieldUnchanged('type');
+
+      // Users can delete their own notifications.
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // ============================================================
+    // Announcements Collection
+    // ============================================================
+    match /announcements/{announcementId} {
+      // Any authenticated user can read announcements.
+      allow read: if isAuthenticated();
+
+      // Only admins can create, update, or delete announcements.
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+  }
+}
+

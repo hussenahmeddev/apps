@@ -1,0 +1,48 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper: check authentication
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper: check file size (max 5MB)
+    function isValidSize() {
+      return request.resource.size < 5 * 1024 * 1024;
+    }
+
+    // Helper: check image content type
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+
+    // Profile images: users can upload their own
+    match /profile_images/{userId}.{ext} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && 
+                      request.auth.uid == userId && 
+                      isImage() && 
+                      isValidSize();
+    }
+
+    // Event images: organizers and admins can upload
+    match /event_images/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isImage() && isValidSize();
+    }
+
+    // Club images: organizers and admins can upload
+    match /club_images/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isImage() && isValidSize();
+    }
+
+    // Announcement images: admins only
+    match /announcement_images/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isImage() && isValidSize();
+    }
+  }
+}
+

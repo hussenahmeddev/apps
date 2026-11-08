@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1052224907142",
+    "project_id": "campus-connect-3d071",
+    "storage_bucket": "campus-connect-3d071.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1052224907142:android:137baac097ec6cae1b2e07",
+        "android_client_info": {
+          "package_name": "com.example.haramaya_campus_connect"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1052224907142-pgsvhsmgkhtkojtn18fk8s2ecvau89c6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAS9M1E7dPxA-T5apqNUvWpo0RmJehFls0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1052224907142-pgsvhsmgkhtkojtn18fk8s2ecvau89c6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
