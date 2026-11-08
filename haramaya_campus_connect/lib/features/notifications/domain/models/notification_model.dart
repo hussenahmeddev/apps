@@ -45,7 +45,17 @@ class NotificationModel {
   });
 
   factory NotificationModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+    final data = doc.data() as Map<String, dynamic>? ?? {};
+    DateTime parsedDate;
+    final createdRaw = data['createdAt'];
+    if (createdRaw is Timestamp) {
+      parsedDate = createdRaw.toDate();
+    } else if (createdRaw is String) {
+      parsedDate = DateTime.tryParse(createdRaw) ?? DateTime.now();
+    } else {
+      parsedDate = DateTime.now();
+    }
+
     return NotificationModel(
       id: doc.id,
       title: data['title'] as String? ?? '',
@@ -55,7 +65,7 @@ class NotificationModel {
       targetType: data['targetType'] as String?,
       userId: data['userId'] as String? ?? '',
       isRead: data['isRead'] as bool? ?? false,
-      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      createdAt: parsedDate,
     );
   }
 
@@ -130,18 +140,36 @@ class AnnouncementModel {
   });
 
   factory AnnouncementModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+    final data = doc.data() as Map<String, dynamic>? ?? {};
+    DateTime parsedDate;
+    final createdRaw = data['createdAt'];
+    if (createdRaw is Timestamp) {
+      parsedDate = createdRaw.toDate();
+    } else if (createdRaw is String) {
+      parsedDate = DateTime.tryParse(createdRaw) ?? DateTime.now();
+    } else {
+      parsedDate = DateTime.now();
+    }
+
+    DateTime? parsedExpires;
+    final expiresRaw = data['expiresAt'];
+    if (expiresRaw is Timestamp) {
+      parsedExpires = expiresRaw.toDate();
+    } else if (expiresRaw is String) {
+      parsedExpires = DateTime.tryParse(expiresRaw);
+    }
+
     return AnnouncementModel(
       id: doc.id,
       title: data['title'] as String? ?? '',
       content: data['content'] as String? ?? '',
       imageUrl: data['imageUrl'] as String?,
       authorId: data['authorId'] as String? ?? '',
-      authorName: data['authorName'] as String? ?? '',
+      authorName: data['authorName'] as String? ?? 'Campus Administration',
       priority: data['priority'] as String? ?? 'normal',
       isActive: data['isActive'] as bool? ?? true,
-      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      expiresAt: (data['expiresAt'] as Timestamp?)?.toDate(),
+      createdAt: parsedDate,
+      expiresAt: parsedExpires,
     );
   }
 
@@ -159,7 +187,8 @@ class AnnouncementModel {
     };
   }
 
-  bool get isExpired => expiresAt != null && expiresAt!.isBefore(DateTime.now());
+  bool get isExpired =>
+      expiresAt != null && expiresAt!.isBefore(DateTime.now());
   bool get isUrgent => priority == 'urgent';
   bool get isHigh => priority == 'high';
 
@@ -171,3 +200,35 @@ class AnnouncementModel {
   int get hashCode => id.hashCode;
 }
 
+class NotificationFeedItem {
+  final AnnouncementModel? announcement;
+  final NotificationModel? notification;
+  final bool isRead;
+
+  NotificationFeedItem.announcement(
+    this.announcement, {
+    this.isRead = false,
+  }) : notification = null;
+
+  NotificationFeedItem.notification(
+    this.notification,
+  )   : announcement = null,
+        isRead = notification?.isRead ?? false;
+
+  bool get isAnnouncement => announcement != null;
+  String get id => isAnnouncement ? announcement!.id : notification!.id;
+  String get title =>
+      isAnnouncement ? announcement!.title : notification!.title;
+  String get body =>
+      isAnnouncement ? announcement!.content : notification!.body;
+  DateTime get createdAt =>
+      isAnnouncement ? announcement!.createdAt : notification!.createdAt;
+
+  NotificationType get type =>
+      isAnnouncement ? NotificationType.announcement : notification!.type;
+
+  String get priority => announcement?.priority ?? 'normal';
+  String get authorName => announcement?.authorName ?? 'Campus Administration';
+  String? get targetId => notification?.targetId;
+  String? get targetType => notification?.targetType;
+}

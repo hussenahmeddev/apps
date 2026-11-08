@@ -187,15 +187,7 @@ class HomeScreen extends ConsumerWidget {
               announcementsAsync.when(
                 data: (notices) => AnnouncementsSection(announcements: notices),
                 loading: () => const SizedBox.shrink(),
-                error: (_, __) => _buildEmptySection(
-                  context,
-                  icon: Icons.groups_rounded,
-                  title: 'Campus Clubs',
-                  subtitle:
-                      'Join clubs to connect with students who share your interests. Explore academic, tech, sports, and cultural clubs.',
-                  buttonLabel: 'Explore Clubs',
-                  onTap: () => context.go('/clubs'),
-                ),
+                error: (_, __) => const SizedBox.shrink(),
               ),
               const SizedBox(height: 24),
 

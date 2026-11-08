@@ -25,8 +25,7 @@ class AppScaffold extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final unreadCountAsync = ref.watch(unreadNotificationCountProvider);
-    final unreadCount = unreadCountAsync.value ?? 0;
+    final unreadCount = ref.watch(combinedUnreadCountProvider);
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return PopScope(
